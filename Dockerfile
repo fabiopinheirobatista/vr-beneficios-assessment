@@ -6,6 +6,6 @@ RUN mvn -B -DskipTests package
 
 FROM eclipse-temurin:17-jre-jammy
 ARG JAR_FILE=target/api-assessment-0.0.1-SNAPSHOT.jar
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 COPY --from=build /workspace/${JAR_FILE} /app/app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]
-

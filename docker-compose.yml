@@ -9,7 +9,6 @@ services:
       MYSQL_DATABASE: assessmentdb
       MYSQL_USER: vruser
       MYSQL_PASSWORD: vrpass
-    # Expor porta internamente e mapear porta alternativa no host para permitir acesso externo sem conflito
     expose:
       - "3306"
     ports:
@@ -38,7 +37,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "bash -c 'cat < /dev/tcp/localhost/8080 > /dev/null 2>&1'"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
