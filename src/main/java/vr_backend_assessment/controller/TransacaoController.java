@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import vr_backend_assessment.dto.TransacaoRequest;
 import vr_backend_assessment.service.TransacaoService;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/transacoes")
 public class TransacaoController {
@@ -21,8 +24,12 @@ public class TransacaoController {
 
     @PostMapping
     public ResponseEntity<String> realizarTransacao(@RequestBody TransacaoRequest request) {
-        transacaoService.processarTransacao(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("OK");
+        return Optional.ofNullable(request.getValor())
+                .filter(v -> v.compareTo(BigDecimal.ZERO) > 0)
+                .map(v -> {
+                    transacaoService.processarTransacao(request);
+                    return ResponseEntity.status(HttpStatus.CREATED).body("OK");
+                })
+                .orElseGet(() -> ResponseEntity.unprocessableEntity().body("SALDO INSUFICIENTE"));
     }
 }
-
