@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "ab131fce-b572-4c23-ac8c-ec466694c2eb",
 		"name": "VR-Beneficios-Assessment",
-		"description": "Coleção para testar a API Mini Autorizador. Ordem: criar cartão, consultar saldo, realizar transação. Todas as requisições usam autenticação Basic Auth.",
+		"description": "Collection to test Mini Authorizer API. Order: create card, check balance, multiple transactions until insufficient, invalid password, non-existent card. Uses Basic Auth.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -14,7 +14,7 @@
 	},
 	"item": [
 		{
-			"name": "1 - Criar Cartão",
+			"name": "1 - Create Card",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -23,7 +23,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"numeroCartao\": \"6549873025634501\",\n    \"senha\": \"1234\"\n}"
+					"raw": "{\n  \"numeroCartao\": \"6549873025634701\",\n  \"senha\": \"1234\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/cartoes",
@@ -38,9 +38,8 @@
 						"type": "text/javascript",
 						"exec": [
 							"pm.test(\"Status code is 201\", function () {",
-							"    pm.response.to.have.status(201);",
+							"  pm.response.to.have.status(201);",
 							"});",
-							"// Salva numeroCartao e senhaCartao como variáveis para as próximas requisições",
 							"var json = pm.response.json();",
 							"pm.collectionVariables.set('numeroCartao', json.numeroCartao);",
 							"pm.collectionVariables.set('senhaCartao', json.senha);"
@@ -50,17 +49,11 @@
 			]
 		},
 		{
-			"name": "2 - Consultar Saldo Cartão",
+			"name": "2 - Check Balance (initial)",
 			"request": {
 				"method": "GET",
-				"header": [
-					{"key": "Accept", "value": "application/json"}
-				],
-				"url": {
-					"raw": "{{base_url}}/cartoes/{{numeroCartao}}",
-					"host": ["{{base_url}}"],
-					"path": ["cartoes", "{{numeroCartao}}"]
-				}
+				"header": [{ "key": "Accept", "value": "application/json" }],
+				"url": { "raw": "{{base_url}}/cartoes/{{numeroCartao}}", "host": ["{{base_url}}"], "path": ["cartoes", "{{numeroCartao}}"] }
 			},
 			"event": [
 				{
@@ -69,7 +62,10 @@
 						"type": "text/javascript",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
+							"  pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Balance is 500.00\", function () {",
+							"  pm.expect(pm.response.text()).to.eql('500.00');",
 							"});"
 						]
 					}
@@ -77,41 +73,133 @@
 			]
 		},
 		{
-			"name": "3 - Realizar Transação",
+			"name": "3 - Transaction 1 (100.00)",
 			"request": {
 				"method": "POST",
 				"header": [
 					{"key": "Content-Type", "value": "application/json"},
 					{"key": "Accept", "value": "application/json"}
 				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"numeroCartao\": \"{{numeroCartao}}\",\n    \"senhaCartao\": \"{{senhaCartao}}\",\n    \"valor\": 10.00\n}"
-				},
-				"url": {
-					"raw": "{{base_url}}/transacoes",
-					"host": ["{{base_url}}"],
-					"path": ["transacoes"]
-				}
+				"body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"{{numeroCartao}}\",\n  \"senhaCartao\": \"{{senhaCartao}}\",\n  \"valor\": 100.00\n}" },
+				"url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] }
 			},
 			"event": [
 				{
 					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"pm.test(\"Status code is 201\", function () {",
-							"    pm.response.to.have.status(201);",
-							"});"
-						]
-					}
+					"script": { "type": "text/javascript", "exec": [
+						"pm.test(\"Status code is 201\", function () {",
+						"  pm.response.to.have.status(201);",
+						"});",
+						"pm.test(\"Body is OK\", function () {",
+						"  pm.expect(pm.response.text()).to.eql('OK');",
+						"});"
+					] }
 				}
 			]
+		},
+		{
+			"name": "4 - Check Balance after Transaction 1",
+			"request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/cartoes/{{numeroCartao}}", "host": ["{{base_url}}"], "path": ["cartoes", "{{numeroCartao}}"] } ,
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+				"pm.test(\"Balance is 400.00\", function () { pm.expect(pm.response.text()).to.eql('400.00'); });"
+			] } } ]
+		},
+		{
+			"name": "5 - Transaction 2 (200.00)",
+			"request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" },{ "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"{{numeroCartao}}\",\n  \"senhaCartao\": \"{{senhaCartao}}\",\n  \"valor\": 200.00\n}" }, "url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] } },
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+				"pm.test(\"Body is OK\", function () { pm.expect(pm.response.text()).to.eql('OK'); });"
+			] } } ]
+		},
+		{
+			"name": "6 - Check Balance after Transaction 2",
+			"request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/cartoes/{{numeroCartao}}", "host": ["{{base_url}}"], "path": ["cartoes", "{{numeroCartao}}"] } ,
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+				"pm.test(\"Balance is 200.00\", function () { pm.expect(pm.response.text()).to.eql('200.00'); });"
+			] } } ]
+		},
+		{
+			"name": "7 - Transaction 3 (200.00)",
+			"request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" },{ "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"{{numeroCartao}}\",\n  \"senhaCartao\": \"{{senhaCartao}}\",\n  \"valor\": 200.00\n}" }, "url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] } },
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+				"pm.test(\"Body is OK\", function () { pm.expect(pm.response.text()).to.eql('OK'); });"
+			] } } ]
+		},
+		{
+			"name": "8 - Check Balance after Transaction 3",
+			"request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": { "raw": "{{base_url}}/cartoes/{{numeroCartao}}", "host": ["{{base_url}}"], "path": ["cartoes", "{{numeroCartao}}"] } ,
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+				"pm.test(\"Balance is 0.00\", function () { pm.expect(pm.response.text()).to.eql('0.00'); });"
+			] } } ]
+		},
+		{
+			"name": "9 - Transaction 4 (expect insufficient)",
+			"request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" },{ "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"{{numeroCartao}}\",\n  \"senhaCartao\": \"{{senhaCartao}}\",\n  \"valor\": 10.00\n}" }, "url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] } },
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test(\"Status code is 422\", function () { pm.response.to.have.status(422); });",
+				"pm.test(\"Body is SALDO_INSUFICIENTE\", function () { pm.expect(pm.response.text()).to.eql('SALDO_INSUFICIENTE'); });"
+			] } } ]
+		},
+		{
+			"name": "10 - Transaction with invalid password",
+			"request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" },{ "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"{{numeroCartao}}\",\n  \"senhaCartao\": \"0000\",\n  \"valor\": 10.00\n}" }, "url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] } },
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test(\"Status code is 422\", function () { pm.response.to.have.status(422); });",
+				"pm.test(\"Body is SENHA_INVALIDA\", function () { pm.expect(pm.response.text()).to.eql('SENHA_INVALIDA'); });"
+			] } } ]
+		},
+		{
+			"name": "11 - Transaction with non-existent card",
+			"request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" },{ "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"9999999999999999\",\n  \"senhaCartao\": \"1234\",\n  \"valor\": 10.00\n}" }, "url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] } },
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test(\"Status code is 422\", function () { pm.response.to.have.status(422); });",
+				"pm.test(\"Body is CARTAO_INEXISTENTE\", function () { pm.expect(pm.response.text()).to.eql('CARTAO_INEXISTENTE'); });"
+			] } } ]
+		},
+		{
+			"name": "12 - Create Card with invalid number",
+			"request": {
+				"method": "POST",
+				"header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ],
+				"body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"123\",\n  \"senha\": \"1234\"\n}" },
+				"url": { "raw": "{{base_url}}/cartoes", "host": ["{{base_url}}"], "path": ["cartoes"] }
+			},
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test('Status is 201 or 422', function () { pm.expect([201,422]).to.include(pm.response.code); });"
+			] } } ]
+		},
+		{
+			"name": "13 - Transaction A (50.00)",
+			"request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" },{ "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"{{numeroCartao}}\",\n  \"senhaCartao\": \"{{senhaCartao}}\",\n  \"valor\": 50.00\n}" }, "url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] } },
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Status 201 or 422', function(){ pm.expect([201,422]).to.include(pm.response.code); });" ] } } ]
+		},
+		{
+			"name": "14 - Transaction B (50.00)",
+			"request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" },{ "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"{{numeroCartao}}\",\n  \"senhaCartao\": \"{{senhaCartao}}\",\n  \"valor\": 50.00\n}" }, "url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] } },
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Status 201 or 422', function(){ pm.expect([201,422]).to.include(pm.response.code); });" ] } } ]
+		},
+		{
+			"name": "15 - Transaction C (50.00)",
+			"request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" },{ "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"{{numeroCartao}}\",\n  \"senhaCartao\": \"{{senhaCartao}}\",\n  \"valor\": 50.00\n}" }, "url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] } },
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Status 201 or 422', function(){ pm.expect([201,422]).to.include(pm.response.code); });" ] } } ]
+		},
+		{
+			"name": "16 - Large Transaction (5000.00)",
+			"request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" },{ "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"numeroCartao\": \"{{numeroCartao}}\",\n  \"senhaCartao\": \"{{senhaCartao}}\",\n  \"valor\": 5000.00\n}" }, "url": { "raw": "{{base_url}}/transacoes", "host": ["{{base_url}}"], "path": ["transacoes"] } },
+			"event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+				"pm.test(\"Status code is 422\", function () { pm.response.to.have.status(422); });",
+				"pm.test(\"Body is SALDO_INSUFICIENTE\", function () { pm.expect(pm.response.text()).to.eql('SALDO_INSUFICIENTE'); });"
+			] } } ]
 		}
 	],
 	"variable": [
 		{"key": "base_url", "value": "http://localhost:8080"},
-		{"key": "numeroCartao", "value": "6549873025634501"},
+		{"key": "numeroCartao", "value": "6549873025634701"},
 		{"key": "senhaCartao", "value": "1234"}
 	]
 }
