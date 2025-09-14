@@ -1,4 +1,3 @@
-// new file
 package vr_backend_assessment.controller;
 
 import org.springframework.http.HttpStatus;

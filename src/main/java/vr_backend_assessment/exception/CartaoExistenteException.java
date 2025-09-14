@@ -1,4 +1,3 @@
-// new file
 package vr_backend_assessment.exception;
 
 import vr_backend_assessment.dto.CartaoRequest;

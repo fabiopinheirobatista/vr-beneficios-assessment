@@ -8,7 +8,6 @@ CREATE TABLE transacoes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     numero_cartao VARCHAR(19),
     valor DECIMAL(19,2) NOT NULL,
-    status VARCHAR(50) NOT NULL,
-    CONSTRAINT fk_transacao_cartao FOREIGN KEY (numero_cartao) REFERENCES cartoes(numero_cartao)
+    status VARCHAR(50) NOT NULL
+    -- Removida a foreign key para permitir registro de tentativas com cartão inexistente
 );
-

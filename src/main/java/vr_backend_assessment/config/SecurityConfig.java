@@ -1,4 +1,3 @@
-// new file
 package vr_backend_assessment.config;
 
 import org.springframework.context.annotation.Bean;
