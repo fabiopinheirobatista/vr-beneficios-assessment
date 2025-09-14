@@ -9,8 +9,8 @@ services:
       MYSQL_DATABASE: assessmentdb
       MYSQL_USER: vruser
       MYSQL_PASSWORD: vrpass
-    ports:
-      - "3306:3306"
+    expose:
+      - "3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
