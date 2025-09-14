@@ -189,5 +189,5 @@ Observações finais e contato
 
 Agradecimentos
 --------------
-Implementado seguindo boas práticas de Clean Architecture e orientado a testes. Qualquer dúvida ou ajuste, posso ajudar a adaptar o projeto às suas necessidades.
+Implementado seguindo boas práticas de Clean Architecture e orientado a testes. Qualquer dúvida ou ajuste, por favor, me informe.
 
