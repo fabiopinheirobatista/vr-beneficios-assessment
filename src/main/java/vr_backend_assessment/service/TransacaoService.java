@@ -1,4 +1,3 @@
-// new file
 package vr_backend_assessment.service;
 
 import org.springframework.stereotype.Service;
@@ -7,12 +6,10 @@ import vr_backend_assessment.domain.Cartao;
 import vr_backend_assessment.domain.Transacao;
 import vr_backend_assessment.dto.TransacaoRequest;
 import vr_backend_assessment.exception.CartaoInexistenteException;
-import vr_backend_assessment.exception.SenhaInvalidaException;
 import vr_backend_assessment.exception.SaldoInsuficienteException;
+import vr_backend_assessment.exception.SenhaInvalidaException;
 import vr_backend_assessment.repository.CartaoRepository;
 import vr_backend_assessment.repository.TransacaoRepository;
-
-import java.math.BigDecimal;
 
 @Service
 public class TransacaoService {

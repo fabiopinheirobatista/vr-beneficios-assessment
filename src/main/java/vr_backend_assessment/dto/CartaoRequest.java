@@ -1,4 +1,3 @@
-// new file
 package vr_backend_assessment.dto;
 
 public class CartaoRequest {

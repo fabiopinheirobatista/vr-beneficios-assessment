@@ -1,7 +1,7 @@
-// new file
 package vr_backend_assessment.domain;
 
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 
 @Entity

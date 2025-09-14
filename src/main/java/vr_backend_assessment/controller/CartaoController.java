@@ -3,9 +3,9 @@ package vr_backend_assessment.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vr_backend_assessment.domain.Cartao;
 import vr_backend_assessment.dto.CartaoRequest;
 import vr_backend_assessment.service.CartaoService;
-import vr_backend_assessment.domain.Cartao;
 
 import java.math.BigDecimal;
 
