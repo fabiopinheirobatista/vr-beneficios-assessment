@@ -1,0 +1,117 @@
+{
+	"info": {
+		"_postman_id": "ab131fce-b572-4c23-ac8c-ec466694c2eb",
+		"name": "VR-Beneficios-Assessment",
+		"description": "Coleção para testar a API Mini Autorizador. Ordem: criar cartão, consultar saldo, realizar transação. Todas as requisições usam autenticação Basic Auth.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{"key": "username", "value": "username", "type": "string"},
+			{"key": "password", "value": "password", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "1 - Criar Cartão",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "Accept", "value": "application/json"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"numeroCartao\": \"6549873025634501\",\n    \"senha\": \"1234\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/cartoes",
+					"host": ["{{base_url}}"],
+					"path": ["cartoes"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"// Salva numeroCartao e senhaCartao como variáveis para as próximas requisições",
+							"var json = pm.response.json();",
+							"pm.collectionVariables.set('numeroCartao', json.numeroCartao);",
+							"pm.collectionVariables.set('senhaCartao', json.senha);"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "2 - Consultar Saldo Cartão",
+			"request": {
+				"method": "GET",
+				"header": [
+					{"key": "Accept", "value": "application/json"}
+				],
+				"url": {
+					"raw": "{{base_url}}/cartoes/{{numeroCartao}}",
+					"host": ["{{base_url}}"],
+					"path": ["cartoes", "{{numeroCartao}}"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "3 - Realizar Transação",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "Accept", "value": "application/json"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"numeroCartao\": \"{{numeroCartao}}\",\n    \"senhaCartao\": \"{{senhaCartao}}\",\n    \"valor\": 10.00\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/transacoes",
+					"host": ["{{base_url}}"],
+					"path": ["transacoes"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						]
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "base_url", "value": "http://localhost:8080"},
+		{"key": "numeroCartao", "value": "6549873025634501"},
+		{"key": "senhaCartao", "value": "1234"}
+	]
+}
