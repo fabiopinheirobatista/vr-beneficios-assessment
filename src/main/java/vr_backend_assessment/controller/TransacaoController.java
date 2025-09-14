@@ -30,6 +30,6 @@ public class TransacaoController {
                     transacaoService.processarTransacao(request);
                     return ResponseEntity.status(HttpStatus.CREATED).body("OK");
                 })
-                .orElseGet(() -> ResponseEntity.unprocessableEntity().body("SALDO_INSUFICIENTE"));
+                .orElseGet(() -> ResponseEntity.unprocessableEntity().body("SALDO INSUFICIENTE"));
     }
 }
